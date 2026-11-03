@@ -1,8 +1,17 @@
-import importlib.util, pathlib
-src = pathlib.Path(__file__).parents[1] / "app" / "main.py"
-code = src.read_text().split("@app.get")[0]
-def test_chunk_overlap():
-    ns = {}
-    exec("def chunk" + code.split("def chunk")[1], ns)
-    parts = ns["chunk"]("a" * 2000)
-    assert len(parts) == 3 and all(len(p) <= 800 for p in parts)
+import pytest
+
+from app.chunking import chunk
+
+
+def test_splits_with_overlap():
+    parts = chunk("a" * 2000, size=800, overlap=100)
+    assert [len(p) for p in parts] == [800, 800, 600]
+
+
+def test_empty_text_returns_nothing():
+    assert chunk("   ") == []
+
+
+def test_invalid_sizes_rejected():
+    with pytest.raises(ValueError):
+        chunk("abc", size=100, overlap=100)

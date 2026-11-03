@@ -1,0 +1,7 @@
+.git
+.github
+terraform
+k8s
+tests
+*.md
+__pycache__
